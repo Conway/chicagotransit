@@ -5,6 +5,7 @@ import xmltodict
 
 _base_url = 'http://www.ctabustracker.com/bustime/api/v1/'
 
+
 class BusTracker(object):
 
     def __init__(self, key):
@@ -17,12 +18,13 @@ class BusTracker(object):
         hour = int(time_str[9:11])
         minute = int(time_str[12:14])
         second = int(time_str[15:17])
-        time = datetime.datetime(year=year, month=month, day=day, hour=hour, minute=minute, second=second)
+        time = datetime.datetime(year=year, month=month, day=day, hour=hour,
+                                 minute=minute, second=second)
         return time
 
     def time(self):
         url = _base_url + 'gettime'
-        result = requests.get(url, params={'key':self.key})
+        result = requests.get(url, params={'key': self.key})
         xml = xmltodict.parse(result.text)
         if 'tm' in xml['bustime-response'].keys():
             time_str = xml['bustime-response']['tm']
@@ -33,7 +35,7 @@ class BusTracker(object):
 
     def bus_by_id(self, vid):
         url = _base_url + 'getvehicles'
-        result = requests.get(url, params={'key':self.key, 'vid':vid})
+        result = requests.get(url, params={'key': self.key, 'vid': vid})
         xml = xmltodict.parse(result.text)
         if 'vehicle' in xml['bustime-response'].keys():
             v_data = xml['bustime-response']['vehicle']
@@ -46,27 +48,36 @@ class BusTracker(object):
             destination = v_data['des']
             pattern_dist = v_data['pdist']
             speed = v_data['spd']
-            bus = BusTracker.Bus(vid, self, time, latitude, longitude, heading, pattern_id, pattern_dist, route, destination, speed)
+            bus = BusTracker.Bus(vid, self, time, latitude, longitude, heading,
+                                 pattern_id, pattern_dist, route, destination,
+                                 speed)
             return bus
         else:
             error = xml['bustime-response']['error']['msg']
             errors.error_handler(error)
 
     def routes(self, update=False):
-        if hasattr(self, 'bus_routes') and self.bus_routes != [] and update == False:
+        if (
+            hasattr(self, 'bus_routes') and
+            self.bus_routes != [] and
+            update is False
+        ):
             return self.bus_routes
         url = _base_url + 'getroutes'
-        result = requests.get(url, params={'key':self.key})
+        result = requests.get(url, params={'key': self.key})
         xml = xmltodict.parse(result.text)
         if 'error' in xml['bustime-response'].keys():
             errors.error_handler(xml['bustime-response']['error']['msg'])
         self.bus_routes = []
         for resp in xml['bustime-response']['route']:
-            self.bus_routes.append(BusTracker.Route(resp['rt'], self, resp['rtnm']))
+            rt = BusTracker.Route(resp['rt'], self, resp['rtnm'])
+            self.bus_routes.append(rt)
         return self.bus_routes
 
     class Bus(object):
-        def __init__(self, id, bt, time, latitude, longitude, heading, pattern_id, pattern_dist, route, destination, speed, delayed=False):
+        def __init__(self, id, bt, time, latitude, longitude, heading,
+                     pattern_id, pattern_dist, route, destination, speed,
+                     delayed=False):
             self.id = id
             self.bt = bt
             self.time = time
@@ -97,7 +108,8 @@ class BusTracker(object):
 
         def busses(self, update=False):
             url = _base_url + 'getvehicles'
-            result = requests.get(url, params={'key':self.bt.key, 'rt':self.number})
+            params = {'key': self.bt.key, 'rt': self.number}
+            result = requests.get(url, params=params)
             xml = xmltodict.parse(result.text)
             if 'vehicle' in xml['bustime-response'].keys():
                 for resp in xml['bustime-response']:
@@ -111,7 +123,9 @@ class BusTracker(object):
                     destination = resp['des']
                     pattern_dist = resp['pdist']
                     speed = resp['spd']
-                    bus = BusTracker.Bus(vid, self, time, latitude, longitude, heading, pattern_id, pattern_dist, route, destination, speed)
+                    bus = BusTracker.Bus(vid, self, time, latitude, longitude,
+                                         heading, pattern_id, pattern_dist,
+                                         route, destination, speed)
                     self.busses.append(bus)
             else:
                 error = xml['bustime-response']['error']['msg']
@@ -123,7 +137,8 @@ class BusTracker(object):
             else:
                 self.direction = []
                 url = _base_url + 'getdirections'
-                result = requests.get(url, params={'key':self.bt.key, 'rt':self.number})
+                params = {'key': self.bt.key, 'rt': self.number}
+                result = requests.get(url, params=params)
                 xml = xmltodict.parse(result.text)
                 self.direction = xml['bustime-response']['dir']
                 return self.direction
@@ -131,7 +146,8 @@ class BusTracker(object):
         def stops(self, direction, update=False):
             assert(direction in self.directions())
             url = _base_url + 'getstops'
-            result = requests.get(url, params={'key':self.bt.key, 'rt':self.number, 'dir':direction})
+            params = {'key': self.bt.key, 'rt': self.number, 'dir': direction}
+            result = requests.get(url, params=params)
             xml = xmltodict.parse(result.text)
             if hasattr(self, 'stop') and not update:
                 return self.stops
@@ -142,7 +158,9 @@ class BusTracker(object):
                     name = resp['stpnm']
                     latitude = resp['lat']
                     longitude = resp['lon']
-                    self.stop.append(BusTracker.Stop(id, name, latitude, longitude, self.bt))
+                    stop = BusTracker.Stop(id, name, latitude,
+                                           longitude, self.bt)
+                    self.stop.append(stop)
                 return self.stop
             else:
                 error = xml['bustime-response']['error']['msg']

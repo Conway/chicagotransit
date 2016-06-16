@@ -6,8 +6,10 @@ def error_handler(exception):
     else:
         raise Exception(exception)
 
+
 class InvalidKeyException(Exception):
     pass
+
 
 class NoDataFoundException(Exception):
     pass

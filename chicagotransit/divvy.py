@@ -3,6 +3,8 @@ import json
 import requests
 
 _url = 'https://www.divvybikes.com/stations/json'
+
+
 class Divvy(object):
     def __init__(self):
         self.stations = []
@@ -34,8 +36,11 @@ class Divvy(object):
                 hour = int(date_str[11:13])
             minute = int(date_str[14:16])
             second = int(date_str[17:19])
-            updated = datetime.datetime(year=year, month=month, day=day, hour=hour, minute=minute, second=second)
-            s = Station(id, name, available, total, latitude, longitude, status_value, status_key, renting, updated)
+            updated = datetime.datetime(year=year, month=month, day=day,
+                                        hour=hour, minute=minute,
+                                        second=second)
+            s = Station(id, name, available, total, latitude, longitude,
+                        status_value, status_key, renting, updated)
             self.stations.append(s)
 
     def by_id(self, id):
@@ -43,8 +48,10 @@ class Divvy(object):
             if station.id == id:
                 return station
 
+
 class Station(object):
-    def __init__(self, id, name, available, total, latitude, longitude, status_value, status_key, renting, updated):
+    def __init__(self, id, name, available, total, latitude, longitude,
+                 status_value, status_key, renting, updated):
         self.id = id
         self.name = name
         self.available = available
