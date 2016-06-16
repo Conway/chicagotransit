@@ -11,7 +11,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='chicagotransit',
-    version='0.1.0',
+    version='0.2.0',
     description='A package for interfacing with Chicago Transit APIs',
     long_description=long_description,
     url='https://github.com/conway/ChicagoTransit',

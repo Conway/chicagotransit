@@ -21,7 +21,7 @@ Future Expansion
 - Pace Busses*
 - Metrarail*
 
-*if some sort of public API can be found
+\*if some sort of public API can be found
 
 Changelog
 ---------
