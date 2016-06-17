@@ -13,22 +13,30 @@ Currently Supported
 
 - CTA Bustracker (Bustime)
 - Divvy Bike Station Status
+- Metrarail
 
 Future Expansion
 ----------------
 
 - CTA Traintracker
 - Pace Busses*
-- Metrarail*
 
 \*if some sort of public API can be found
+
 
 Changelog
 ---------
 
+**v0.3.0**
+
+- Added some support for Metra Rail
+- Cleaned up other code in order to meet PEP8
+
+
 **v0.2.0**
 
 - Added support for Divvy Bike Station Status
+
 
 **v0.1.0**
 

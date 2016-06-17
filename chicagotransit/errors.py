@@ -13,3 +13,7 @@ class InvalidKeyException(Exception):
 
 class NoDataFoundException(Exception):
     pass
+
+
+class InvalidLineException(Exception):
+    pass
