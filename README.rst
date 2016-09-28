@@ -13,7 +13,7 @@ Currently Supported
 
 - CTA Bustracker (Bustime)
 - Divvy Bike Station Status
-- Metrarail
+- Metrarail (not currently working due to API change)
 - CTA TrainTracker
 
 Future Expansion
