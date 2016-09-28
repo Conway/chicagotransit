@@ -4,23 +4,28 @@ import requests
 import xmltodict
 
 _base_url = 'http://www.ctabustracker.com/bustime/api/v1/'
+_base_train = 'http://lapi.transitchicago.com/api/1.0/'
 
-
-class BusTracker(object):
-
-    def __init__(self, key):
-        self.key = key
-
-    def _time_translation(time_str):
+def _time_translation(time_str):
         year = int(time_str[0:4])
         month = int(time_str[4:6])
         day = int(time_str[6:8])
         hour = int(time_str[9:11])
         minute = int(time_str[12:14])
         second = int(time_str[15:17])
-        time = datetime.datetime(year=year, month=month, day=day, hour=hour,
-                                 minute=minute, second=second)
+        time = datetime.datetime(
+            year=year,
+            month=month,
+            day=day,
+            hour=hour,
+            minute=minute,
+            second=second)
         return time
+
+class BusTracker(object):
+
+    def __init__(self, key):
+        self.key = key
 
     def time(self):
         url = _base_url + 'gettime'
@@ -28,7 +33,7 @@ class BusTracker(object):
         xml = xmltodict.parse(result.text)
         if 'tm' in xml['bustime-response'].keys():
             time_str = xml['bustime-response']['tm']
-            return BusTracker._time_translation(time_str)
+            return _time_translation(time_str)
         else:
             error = xml['bustime-response']['error']['msg']
             errors.error_handler(error)
@@ -173,3 +178,194 @@ class BusTracker(object):
             self.latitude = latitude
             self.longitude = longitude
             self.bt = bt
+
+class TrainTracker(object):
+
+    def __init__(self, key):
+        self.key = key
+
+    def arrival_time_by_station(self, staid, max=None, route=None):
+        params = {'key':self.key, 'mapid':staid}
+        if max:
+            params['max'] = max
+        if route:
+            params['rt'] = route
+        url = _base_train + 'ttarrivals.aspx'
+        response = requests.get(url, params=params)
+        xml = xmltodict.parse(response.text)['ctatt']
+        if xml['errNm']:
+            raise ValueError(xml['errNm'])
+        out = []
+        t = _time_translation(xml['tmst'])
+        for arrival in xml['eta']:
+            arr = TrainTracker.Stop(self,
+                                    arrival['staId'],
+                                    arrival['stpId'],
+                                    arrival['staNm'],
+                                    arrival['stpDe'],
+                                    arrival['rn'],
+                                    arrival['rt'],
+                                    arrival['destSt'],
+                                    arrival['destNm'],
+                                    arrival['trDr'],
+                                    t,
+                                    _time_translation(arrival['prdt']),
+                                    _time_translation(arrival['arrT']),
+                                    bool(arrival['isApp']),
+                                    bool(arrival['isSch']),
+                                    bool(arrival['isDly']),
+                                    bool(arrival['isFlt']),
+                                    arrival['lat'],
+                                    arrival['lon'],
+                                    arrival['heading'])
+            out.append(arr)
+        return out
+
+    def arrival_time_by_stop(self, stpid, max=None, route=None):
+        params = {'key':self.key, 'stpid':stpid}
+        if max:
+            params['max'] = max
+        if route:
+            params['rt'] = route
+        url = _base_train + 'ttarrivals.aspx'
+        response = requests.get(url, params=params)
+        xml = xmltodict.parse(response.text)['ctatt']
+        if xml['errNm']:
+            raise ValueError(xml['errNm'])
+        out = []
+        t = _time_translation(xml['tmst'])
+        for arrival in xml['eta']:
+            arr = TrainTracker.Stop(self,
+                                    arrival['staId'],
+                                    arrival['stpId'],
+                                    arrival['staNm'],
+                                    arrival['stpDe'],
+                                    arrival['rn'],
+                                    arrival['rt'],
+                                    arrival['destSt'],
+                                    arrival['destNm'],
+                                    arrival['trDr'],
+                                    t,
+                                    _time_translation(arrival['prdt']),
+                                    _time_translation(arrival['arrT']),
+                                    bool(arrival['isApp']),
+                                    bool(arrival['isSch']),
+                                    bool(arrival['isDly']),
+                                    bool(arrival['isFlt']),
+                                    arrival['lat'],
+                                    arrival['lon'],
+                                    arrival['heading'])
+            out.append(arr)
+        return out
+
+    def train_positions(self, line):
+        routes = ['red', 'blue', 'brn', 'g', 'org', 'p', 'pink', 'y']
+        if line not in routes:
+            raise ValueError('Invalid Line')
+        url = _base_train + "ttpositions.aspx"
+        response = requests.get(url, params={'key': self.key, 'rt': line})
+        xml = xmltodict.parse(response.text)['ctatt']
+        if xml['errNm']:
+            raise ValueError(xml['errNm'])
+        trains = []
+        for train in xml['route']['train']:
+            t = TrainTracker.Train(
+                self,
+                train['rn'],
+                train['destSt'],
+                train['destNm'],
+                train['trDr'],
+                train['nextStaId'],
+                train['nextStpId'],
+                train['nextStaNm'],
+                _time_translation(train['prdt']),
+                bool(train['isApp']),
+                bool(train['isDly']),
+                train['lat'],
+                train['lon'],
+                train['heading'],
+                line)
+            trains.append(t)
+        return trains
+
+
+    class Stop(object):
+        def __init__(self, tt, station_id, stop_id, station_name, station_desc,
+                     run, route, dest_station, dest_name, train_dir, gen_time,
+                     pre_gen_time, arr_time, is_approaching, is_scheduled,
+                     has_fault, is_delayed, lat, lon, heading):
+            self.tt = tt
+            self.station_id = station_id
+            self.stop_id = stop_id
+            self.station_name = station_name
+            self.station_description = station_desc
+            self.run = run
+            self.route = route
+            self.destination_station = dest_station
+            self.destination_name = dest_name
+            self.train_direction = train_dir
+            self.gen_time = gen_time
+            self.prediction_time = pre_gen_time
+            self.arrival_time = arr_time
+            self.is_approaching = is_approaching
+            self.is_scheduled = is_scheduled
+            self.is_live = not is_scheduled
+            self.has_fault = has_fault
+            self.is_delayed = is_delayed
+            self.lat = lat
+            self.lon = lon
+            self.heading = heading
+
+    class Train(object):
+
+        def __init__(self, tt, run, destination_num, destination_name, train_dir,
+                     next_station_id, next_stop_id, next_station_name,
+                     prediction_time, is_approaching, is_delayed, lat, lon,
+                     heading, line):
+            self.tt = tt
+            self.run = run
+            self.destination_num = destination_num
+            self.destionation_name = destination_name
+            self.train_dir = train_dir
+            self.next_station_id = next_station_id
+            self.next_stop_id = next_stop_id
+            self.next_station_name = next_station_name
+            self.prediction_time = prediction_time
+            self.is_approaching = is_approaching
+            self.is_delayed = is_delayed
+            self.lat = lat
+            self.lon = lon
+            self.heading = heading
+            self.line = line
+
+        def __str__(self):
+            return str(self.line) + ":" + str(self.run)
+
+        def follow(self):
+            params = {'key':self.tt.key, 'runnumber':self.run}
+            url = _base_train + 'ttfollow.aspx'
+            response = requests.get(url, params=params)
+            xml = xmltodict.parse(response.text)['ctatt']
+            if xml['errNm']:
+                raise ValueError(xml['errNm'])
+            lat = xml['position']['lat']
+            lon = xml['position']['lon']
+            heading = xml['position']['heading']
+            t = _time_translation(xml['tmst'])
+            arrivals = []
+            for arrival in xml['eta']:
+                stop = TrainTracker.Stop(self.tt, arrival['staId'],
+                                         arrival['stpId'], arrival['staNm'],
+                                         arrival['stpDe'], arrival['rn'],
+                                         arrival['rt'], arrival['destSt'],
+                                         arrival['destNm'], arrival['trDr'], t,
+                                         _time_translation(arrival['prdt']),
+                                         _time_translation(arrival['arrT']),
+                                         bool(arrival['isApp']),
+                                         bool(arrival['isSch']),
+                                         bool(arrival['isFlt']),
+                                         bool(arrival['isDly']), lat, lon,
+                                         heading)
+                arrivals.append(stop)
+            return arrivals
+

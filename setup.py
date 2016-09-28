@@ -11,7 +11,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='chicagotransit',
-    version='0.3.0',
+    version='0.4.0',
     description='A package for interfacing with Chicago Transit APIs',
     long_description=long_description,
     url='https://github.com/conway/ChicagoTransit',
@@ -29,7 +29,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Natural Language :: English'
     ],
-    keywords=['chicago', 'transit', 'wrapper', 'bus', 'train', 'cta', 'divvy'],
+    keywords=['chicago', 'transit', 'wrapper', 'bus', 'train', 'cta', 'divvy', 'illinois', 'IL', 'transportation'],
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
     install_requires=requirements,
 )
