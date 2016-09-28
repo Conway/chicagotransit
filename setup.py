@@ -6,12 +6,12 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
-with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
+with open(path.join(here, 'requirements.txt')) as fi:
+    requirements = fi.read().splitlines()
 
 setup(
     name='chicagotransit',
-    version='0.4.0',
+    version='0.4.1',
     description='A package for interfacing with Chicago Transit APIs',
     long_description=long_description,
     url='https://github.com/conway/ChicagoTransit',
