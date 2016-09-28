@@ -25,8 +25,8 @@ Future Expansion
 \*if some sort of public API can be found
 
 
-Changelog
----------
+Major Release Changelog
+-----------------------
 
 **v0.4.0**
 
