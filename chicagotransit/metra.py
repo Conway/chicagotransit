@@ -22,7 +22,7 @@ class MetraTrainTracker(object):
         req = requests.get(url, params=data)
         j = json.loads(req.text)
         stations = []
-        for s_order in j['stations'].keys():
+        for s_order in list(j['stations'].keys()):
             name = j['stations'][s_order]['name']
             id = j['stations'][s_order]['id']
             stations.append(Station(id, name))
@@ -36,7 +36,7 @@ class MetraTrainTracker(object):
         req = requests.get(url, params=data)
         j = json.loads(req.text)
         trains = []
-        for key in j.keys():
+        for key in list(j.keys()):
             if key[0:5].lower() == 'train':
                 t_dict = j[key]
                 train_num = t_dict['train_num']
