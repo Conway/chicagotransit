@@ -31,7 +31,7 @@ class BusTracker(object):
         url = _base_url + 'gettime'
         result = requests.get(url, params={'key': self.key})
         xml = xmltodict.parse(result.text)
-        if 'tm' in xml['bustime-response'].keys():
+        if 'tm' in list(xml['bustime-response'].keys()):
             time_str = xml['bustime-response']['tm']
             return _time_translation(time_str)
         else:
@@ -42,7 +42,7 @@ class BusTracker(object):
         url = _base_url + 'getvehicles'
         result = requests.get(url, params={'key': self.key, 'vid': vid})
         xml = xmltodict.parse(result.text)
-        if 'vehicle' in xml['bustime-response'].keys():
+        if 'vehicle' in list(xml['bustime-response'].keys()):
             v_data = xml['bustime-response']['vehicle']
             time = v_data['tmstmp']
             latitude = v_data['lat']
@@ -71,7 +71,7 @@ class BusTracker(object):
         url = _base_url + 'getroutes'
         result = requests.get(url, params={'key': self.key})
         xml = xmltodict.parse(result.text)
-        if 'error' in xml['bustime-response'].keys():
+        if 'error' in list(xml['bustime-response'].keys()):
             errors.error_handler(xml['bustime-response']['error']['msg'])
         self.bus_routes = []
         for resp in xml['bustime-response']['route']:
@@ -116,7 +116,7 @@ class BusTracker(object):
             params = {'key': self.bt.key, 'rt': self.number}
             result = requests.get(url, params=params)
             xml = xmltodict.parse(result.text)
-            if 'vehicle' in xml['bustime-response'].keys():
+            if 'vehicle' in list(xml['bustime-response'].keys()):
                 for resp in xml['bustime-response']:
                     vid = resp['vid']
                     time = resp['tmstmp']
@@ -156,7 +156,7 @@ class BusTracker(object):
             xml = xmltodict.parse(result.text)
             if hasattr(self, 'stop') and not update:
                 return self.stops
-            elif 'stop' in xml['bustime-response'].keys():
+            elif 'stop' in list(xml['bustime-response'].keys()):
                 self.stop = []
                 for resp in xml['bustime-response']['stop']:
                     id = resp['stpid']
