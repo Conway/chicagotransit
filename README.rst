@@ -1,7 +1,7 @@
 chicagotransit
 ==============
 
-A collection of wrappers to communicate with various chicago transit APIs and infosources.
+A collection of wrappers to communicate with various Chicago transit APIs and infosources.
 
 Installation
 ------------
@@ -13,7 +13,7 @@ Currently Supported
 
 - CTA Bustracker (Bustime)
 - Divvy Bike Station Status
-- Metrarail (not currently working due to API change)
+- Metrarail
 - CTA TrainTracker
 
 Future Expansion
@@ -27,6 +27,10 @@ Future Expansion
 
 Major Release Changelog
 -----------------------
+
+**v0.5.0**
+
+- repaired Metra code to work with the Metra GTFS api
 
 **v0.4.0**
 
