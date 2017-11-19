@@ -8,7 +8,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='chicagotransit',
-    version='0.4.2',
+    version='0.5.0',
     description='A package for interfacing with Chicago Transit APIs',
     long_description=long_description,
     url='https://github.com/conway/ChicagoTransit',
@@ -24,6 +24,7 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Natural Language :: English'
     ],
     keywords=['chicago', 'transit', 'wrapper', 'bus', 'train', 'cta', 'divvy', 'illinois', 'IL', 'transportation'],
